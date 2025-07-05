@@ -2,7 +2,7 @@ const express = require('express');
 const dot = require('dotenv');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
-const bycrypt = require("bcryptjs");
+const bcrypt = require("bcryptjs");
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const ws = require('ws');
@@ -16,22 +16,19 @@ const Message = require('./db/Message');
 
 const JWTSECRET = process.env.jwtSecret;
 mongoose.connect(process.env.mongoUrl);
-const bycryptSalt = bycrypt.genSaltSync(10);
+const bcryptSalt = bcrypt.genSaltSync(10);
 
 const app = express();
 
-// Middleware
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.json());
 app.use(cookieParser());
 
-// ✅ CORS for local dev + Netlify
 app.use(cors({
   origin: ['http://localhost:5173', 'https://chatversse.netlify.app'],
   credentials: true
 }));
 
-// 🔐 Utility function to extract user from JWT
 async function getUserData(req) {
   return new Promise((resolve, reject) => {
     const token = req.cookies?.token;
@@ -46,7 +43,6 @@ async function getUserData(req) {
   });
 }
 
-// ✅ Routes
 app.get('/test', (req, res) => {
   res.json({ message: "tested" });
 });
@@ -84,7 +80,7 @@ app.post('/login', async (req, res) => {
   const isPresent = await User.findOne({ username });
   if (!isPresent) return res.status(400).json({ msg: "User not exist" });
 
-  const isOk = bycrypt.compareSync(password, isPresent.password);
+  const isOk = bcrypt.compareSync(password, isPresent.password);
   if (!isOk) return res.status(400).json({ msg: "Wrong Password !!!" });
 
   jwt.sign({ userId: isPresent._id, username }, JWTSECRET, {}, (err, token) => {
@@ -99,7 +95,7 @@ app.post('/login', async (req, res) => {
 app.post('/register', async (req, res) => {
   const { username, password } = req.body;
   try {
-    const hashedPass = bycrypt.hashSync(password, bycryptSalt);
+    const hashedPass = bcrypt.hashSync(password, bcryptSalt);
     const createdUser = await User.create({ username, password: hashedPass });
 
     jwt.sign({ userId: createdUser._id, username }, JWTSECRET, {}, (err, token) => {
@@ -127,7 +123,10 @@ wss.on('connection', (connection, req) => {
   function notifyAboutOnlinePeople() {
     [...wss.clients].forEach(e => {
       e.send(JSON.stringify({
-        online: [...wss.clients].map(ev => ({ userId: ev.userId, username: ev.username }))
+        online: [...wss.clients].map(ev => ({
+          userId: ev.userId,
+          username: ev.username
+        }))
       }));
     });
   }
@@ -188,8 +187,9 @@ wss.on('connection', (connection, req) => {
         file: filename
       });
 
+      // ✅ Send to both sender and recipient
       [...wss.clients]
-        .filter(c => c.userId === recipient)
+        .filter(c => c.userId === recipient || c.userId === connection.userId)
         .forEach(c => c.send(JSON.stringify({
           text,
           sender: connection.userId,

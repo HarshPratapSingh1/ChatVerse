@@ -84,7 +84,7 @@ export const Chat = () => {
         axios.get('/messages/' + selectedUserId).then(res => {
           setMessages(res.data);
         });
-      }, 500); // adjust delay based on backend processing time
+      }, 500);
     }
   }
 
