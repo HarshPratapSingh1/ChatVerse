@@ -30,7 +30,8 @@ export const Chat = () => {
   }, []);
 
   function connectToWS() {
-    const ws = new WebSocket('ws://https://chatverse-4bz4.onrender.com');
+    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const ws = new WebSocket(`${protocol}://chatverse-4bz4.onrender.com`);
     setWs(ws);
     ws.addEventListener('message', handleMessage);
     ws.addEventListener('close', () => {
