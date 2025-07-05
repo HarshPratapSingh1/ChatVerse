@@ -32,7 +32,7 @@ Welcome to **ChatVerse** – a modern, responsive, and secure real-time chat app
 
 | Login Page | Chat Interface |
 |------------|----------------|
-| ![Login](https://your-login-preview-link.com) | ![Chat](https://your-chat-preview-link.com) |
+| ![Login](https://chatversse.netlify.app/) | ![Chat](https://your-chat-preview-link.com) |
 
 ---
 
