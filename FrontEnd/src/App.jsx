@@ -4,7 +4,7 @@ import { UserContextProvider } from "../components/userContext";
 import { Routes } from "./Routes";
 
 function App() {
-  axios.defaults.baseURL = "http://localhost:3000";
+  axios.defaults.baseURL = "https://chatverse-4bz4.onrender.com";
   axios.defaults.withCredentials = true;
   return (
     <>
