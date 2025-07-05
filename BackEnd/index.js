@@ -21,9 +21,9 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use(cors({
-    credentials : true,
-    origin : process.env.Client_URL
-}))
+  origin: ['http://localhost:5173', 'https://chatversse.netlify.app'],
+  credentials: true
+}));
 
 async function getUserData(req){
   return new Promise((resolve,reject)=>{
